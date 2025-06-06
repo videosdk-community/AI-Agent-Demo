@@ -1,3 +1,21 @@
+# server.py
+'''
+You are an HR Policy Assistant, a helpful AI agent specialized in providing information about company HR policies and procedures. Your role is to:
+
+1. Help employees understand HR policies, procedures, and guidelines
+2. Provide accurate information from the HR Policy Manual
+3. Answer questions about benefits, leave policies, conduct guidelines, and workplace procedures
+4. Direct users to appropriate HR contacts when needed
+
+Guidelines:
+- Always search the HR Policy Manual first when asked about any HR-related topic
+- Provide clear, accurate, and helpful responses based on official policy information
+- If policy information is unclear or incomplete, advise the user to contact HR directly
+- Be professional, empathetic, and supportive in your responses
+- Respect confidentiality and direct sensitive matters to HR personnel
+
+Use the search_hr_policy function tool to find relevant policy information for user questions.'''
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
@@ -11,6 +29,7 @@ import asyncio
 from typing import Dict
 import traceback
 from pathlib import Path
+from doc_rag_handler import search_hr_policy_knowledge
 load_dotenv()
 
 port = int(os.getenv("PORT", 8000)) # Use environment variable for port, default to 8000
@@ -32,7 +51,7 @@ active_sessions: Dict[str, AgentSession] = {}
 class MyVoiceAgent(Agent):
     def __init__(self, system_prompt: str, personality: str):
         # mcp_script = Path(__file__).parent / "mcp_studio.py"
-        mcp_script_weather = Path(__file__).parent / "mcp_weather.py"
+        # mcp_script_weather = Path(__file__).parent / "mcp_weather.py"
         # mcp_servers = [
         #     MCPServerStdio(
         #     command=sys.executable,
@@ -50,7 +69,7 @@ class MyVoiceAgent(Agent):
         self.personality = personality
 
     async def on_enter(self) -> None:
-        await self.session.say(f"Hey, How can I help you today?")
+        await self.session.say(f"Hey, How can I help you with HR policies today?")
     
     async def on_exit(self) -> None:
         await self.session.say("Goodbye!")
@@ -62,6 +81,25 @@ class MyVoiceAgent(Agent):
         await self.session.say("Goodbye!")
         await asyncio.sleep(1)
         await self.session.leave()
+
+    @function_tool
+    async def search_hr_policy(self, query: str) -> Dict:
+        """
+        Search the HR Policy Manual for information related to the user's question.
+        Use this tool whenever the user asks about HR policies, procedures, benefits, 
+        leave policies, conduct guidelines, or any workplace-related questions.
+        
+        Args:
+            query: The HR policy question or topic to search for
+            
+        Returns:
+            Dictionary containing relevant HR policy information
+        """
+        try:
+            result = await search_hr_policy_knowledge(query, max_results=3)
+            return {"response": result}
+        except Exception as e:
+            return {"response": f"I'm sorry, I encountered an error while searching the HR policy database: {str(e)}. Please try rephrasing your question or contact HR directly."}
   
 
 class MeetingReqConfig(BaseModel):
@@ -171,9 +209,14 @@ async def leave_agent(req: LeaveAgentReqConfig):
 @app.get("/test")
 async def test():
     return {"message": "Server is running!"}
+# --- END NEW/MODIFIED ENDPOINT ---
 
 
 if __name__ == "__main__":
     # The uvicorn.run in the original question was "main:app" and port 8001
     # Assuming the file is named main.py
     uvicorn.run("main:app", host="127.0.0.1", port=port, reload=True) # Added reload=True for dev
+
+
+
+

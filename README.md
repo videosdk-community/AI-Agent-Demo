@@ -1,22 +1,40 @@
-# AI Voice Agent - Intelligent Real-Time Communication Platform
+# AI Agent Demo - Intelligent Communication and Document Processing Platform
 
-![AI Voice Agent Interface](https://strapi.videosdk.live/uploads/ai_agent_demo_86ae1b7d09.png)
+![AI Agent Interface](https://strapi.videosdk.live/uploads/ai_agent_demo_86ae1b7d09.png)
 
-A powerful **AI voice agent** platform that combines the intelligence of **AI agents LLM** with real-time voice communication capabilities. Build sophisticated voice-enabled applications for customer service, sales automation, and interactive assistants.
+A powerful **AI agent** platform that combines the intelligence of **AI agents LLM** with real-time voice communication capabilities and document processing. Build sophisticated applications for customer service, sales automation, interactive assistants, and document-based question answering.
+
+## Project Architecture
+
+```mermaid
+graph TD
+    A[Client Frontend] -->|WebRTC| B[VideoSDK]
+    A -->|HTTP| C[FastAPI Backend]
+    B -->|Audio Stream| C
+    C -->|Voice Processing| D[Gemini Live]
+    C -->|Document Processing| E[LangChain]
+    E -->|Vector Storage| F[Pinecone]
+    E -->|Text Extraction| G[PyPDF2]
+    D -->|AI Responses| C
+    C -->|Stream| A
+    H[PDF Documents] -->|Ingest| G
+    G -->|Text| E
+    F -->|Vector Search| E
+```
 
 ## Features
 
 - **Advanced AI Voice Agent**: Powered by Google's Gemini Live model
+- **Document Processing**: Intelligent document handling with RAG (Retrieval Augmented Generation)
 - **Real-Time Voice Communication**: Seamless audio processing with VideoSDK
 - **Customizable Personality**: Configure voice, tone, and behavior
 - **AI Outbound Calling**: Perfect for automated sales and support calls
 - **AI Cold Calling**: Intelligent conversation starters and follow-ups
 - **AI Voice Creator**: Generate voices from samples with various personalities
-- **AI Voicemail Generator Free**: Automated voicemail creation and responses
+- **AI Voicemail Generator**: Automated voicemail creation and responses
 - **AI Executive Assistant**: Handle scheduling, reminders, and administrative tasks
 - **Goal Based Agent**: Configure agents with specific objectives and KPIs
-- **News Reporter Text to Speech**: Professional broadcasting voice capabilities
-- **Text to Speech Old Man**: Various voice profiles including elderly personas
+- **Document Q&A**: Ask questions about uploaded documents and get intelligent responses
 
 ## Technology Stack
 
@@ -25,6 +43,8 @@ A powerful **AI voice agent** platform that combines the intelligence of **AI ag
 - **AI Engine**: Google Gemini Live
 - **Real-Time Communication**: VideoSDK
 - **Voice Processing**: Gemini Realtime API
+- **Document Processing**: LangChain + Pinecone
+- **PDF Handling**: PyPDF2
 
 ## Prerequisites
 
@@ -72,13 +92,13 @@ This platform bridges the gap between traditional **AI assistants** and autonomo
 
 ```bash
 # Create virtual environment (requires Python 3.12+)
-python -m venv venv
+python -m venv .venv
 
 # Activate virtual environment
 # On Windows:
-venv\Scripts\activate
+.venv\Scripts\activate
 # On macOS/Linux:
-source venv/bin/activate
+source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -88,6 +108,8 @@ cp .env.example .env
 # Edit .env file and add your credentials:
 # GOOGLE_API_KEY="your-google-api-key-here"
 # PORT="8000"
+# PINECONE_API_KEY="your-pinecone-api-key"
+# PINECONE_ENVIRONMENT="your-pinecone-environment"
 
 # Start the server
 python server.py
@@ -180,6 +202,28 @@ Content-Type: application/json
 }
 ```
 
+## Document Processing
+
+### Upload and Process Documents
+
+The platform supports intelligent document processing through:
+
+- PDF document ingestion
+- Automatic text extraction
+- Vector storage in Pinecone
+- Semantic search capabilities
+- Context-aware question answering
+
+### Document Q&A Example
+
+```python
+# Example of asking questions about uploaded documents
+response = await doc_handler.process_question(
+    question="What are the company's HR policies regarding remote work?",
+    document_id="hr_policy_2023"
+)
+```
+
 ## Key Components
 
 ### Backend Components
@@ -188,6 +232,8 @@ Content-Type: application/json
 - **AgentSession**: Manages agent lifecycle and state
 - **RealTimePipeline**: Processes real-time audio streams
 - **GeminiRealtime**: Integration with Google's Gemini Live model
+- **DocRAGHandler**: Manages document processing and question answering
+- **PineconeStore**: Handles vector storage and retrieval
 
 ### Frontend Components
 
@@ -255,3 +301,39 @@ For support and questions:
 - Enhanced AI personality customization
 
 **Ready to revolutionize your communication with AI voice agents?** Get started now and build the future of intelligent voice interactions!
+
+## Pinecone Setup
+
+### 1. Create Pinecone Account
+- Sign up at [Pinecone.io](https://www.pinecone.io)
+- Create a new project
+- Get your API key and environment
+
+### 2. Create Index
+```python
+import pinecone
+
+# Initialize Pinecone
+pinecone.init(api_key="your-api-key", environment="your-environment")
+
+# Create index
+pinecone.create_index(
+    name="document-store",
+    dimension=1536,  # Dimension for text-embedding-ada-002
+    metric="cosine"
+)
+```
+
+### 3. Store API Key
+Add to your `.env` file:
+```bash
+PINECONE_API_KEY="your-api-key"
+PINECONE_ENVIRONMENT="your-environment"
+PINECONE_INDEX_NAME="document-store"
+```
+
+### 4. Build Vector Store
+Run the vector store builder:
+```bash
+python build_pinecone_store.py
+```
