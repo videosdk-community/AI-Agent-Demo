@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 aiohappyeyeballs==2.6.1
 aiohttp==3.12.12
 aioice==0.10.1

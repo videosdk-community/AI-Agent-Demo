@@ -4,6 +4,8 @@
 
 <div align="left">
 
+![AI Agent Interface](https://strapi.videosdk.live/uploads/ai_agent_demo_86ae1b7d09.png)
+
 A powerful <b>AI Agent Demo</b> playground that combines the intelligence of <b>AI agents LLM</b> with real-time <b>speech-to-speech</b> models integration. Build sophisticated voice-enabled applications for customer service, sales automation, and interactive assistants.
 
 </div>
@@ -20,6 +22,24 @@ A powerful <b>AI Agent Demo</b> playground that combines the intelligence of <b>
 </div>
 
 </div>
+
+## Project Architecture
+
+```mermaid
+graph TD
+    A[Client Frontend] -->|WebRTC| B[VideoSDK]
+    A -->|HTTP| C[FastAPI Backend]
+    B -->|Audio Stream| C
+    C -->|Voice Processing| D[Gemini Live]
+    C -->|Document Processing| E[LangChain]
+    E -->|Vector Storage| F[Pinecone]
+    E -->|Text Extraction| G[PyPDF2]
+    D -->|AI Responses| C
+    C -->|Stream| A
+    H[PDF Documents] -->|Ingest| G
+    G -->|Text| E
+    F -->|Vector Search| E
+```
 
 ## Technology Stack
 
@@ -109,6 +129,16 @@ pip install -r requirements.txt
 ```bash
 cp .env.example .env
 ```
+
+# Edit .env file and add your credentials:
+
+# GOOGLE_API_KEY="your-google-api-key-here"
+
+# PORT="8000"
+
+# PINECONE_API_KEY="your-pinecone-api-key"
+
+# PINECONE_ENVIRONMENT="your-pinecone-environment"
 
 #### Edit .env file and add your credentials:
 
@@ -238,6 +268,30 @@ Content-Type: application/json
 - **Goal Based Agent**: Configure agents with specific objectives and KPIs
 - **News Reporter Text to Speech**: Professional broadcasting voice capabilities
 - **Text to Speech Old Man**: Various voice profiles including elderly personas
+
+## Document Processing
+
+### Upload and Process Documents
+
+The platform supports intelligent document processing through:
+
+- PDF document ingestion
+- Automatic text extraction
+- Vector storage in Pinecone
+- Semantic search capabilities
+- Context-aware question answering
+
+### Document Q&A Example
+
+```python
+# Example of asking questions about uploaded documents
+response = await doc_handler.process_question(
+    question="What are the company's HR policies regarding remote work?",
+    document_id="hr_policy_2023"
+)
+```
+
+> > > > > > > 3652096 (HR Policy RAG Agent)
 
 ## Key Components
 
