@@ -1,8 +1,21 @@
-# AI Voice Agent - Intelligent Real-Time Communication Platform
+<div align="center">
+
+# VideoSDK AI Agents Demo\*\*
+
+<div align="left">
+
+A powerful <b>AI Agent Demo</b> playground that combines the intelligence of <b>AI agents LLM</b> with real-time <b>speech-to-speech</b> models integration. Build sophisticated voice-enabled applications for customer service, sales automation, and interactive assistants.
+
+</div>
+<h3>
+
+[Documentation](https://docs.videosdk.live/ai_agents/introduction) | [AI Agent Playlist](https://www.youtube.com/playlist?list=PLrujdOR6BS_1fMqsHd9tynAg0foSRX5ti) | [Sign Up & Get 10,000 Free minutes](https://dub.sh/o59dJJB) | [Discord](https://discord.gg/f2WsNDN9S5)
 
 ![AI Voice Agent Interface](https://strapi.videosdk.live/uploads/ai_agent_demo_86ae1b7d09.png)
 
-A powerful **AI voice agent** platform that combines the intelligence of **AI agents LLM** with real-time voice communication capabilities. Build sophisticated voice-enabled applications for customer service, sales automation, and interactive assistants.
+</h3>
+
+</div>
 
 ## Features
 
@@ -39,6 +52,9 @@ A powerful **AI voice agent** platform that combines the intelligence of **AI ag
 
 ```bash
 git clone https://github.com/videosdk-community/ai-agent-demo
+```
+
+```bash
 cd ai-agent-demo
 ```
 
@@ -70,26 +86,48 @@ This platform bridges the gap between traditional **AI assistants** and autonomo
 
 ### Create Virtual Environment and Install Dependencies
 
+#### Virtual Enviroment
+
 ```bash
-# Create virtual environment (requires Python 3.12+)
 python -m venv venv
+```
 
-# Activate virtual environment
-# On Windows:
+#### Activate Virtual Environment
+
+- On windows:
+
+```bash
 venv\Scripts\activate
-# On macOS/Linux:
+```
+
+- On macOS/Linux:
+
+```bash
 source venv/bin/activate
+```
 
-# Install dependencies
+#### Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-# Copy environment template and configure
+#### Copy environment template and configure
+
+```bash
 cp .env.example .env
-# Edit .env file and add your credentials:
-# GOOGLE_API_KEY="your-google-api-key-here"
-# PORT="8000"
+```
 
-# Start the server
+#### Edit .env file and add your credentials:
+
+```bash
+GOOGLE_API_KEY="your-google-api-key-here"
+PORT="8000" # (Optional)
+```
+
+#### Start the server
+
+```bash
 python server.py
 ```
 
@@ -98,25 +136,41 @@ python server.py
 ### Install Dependencies and Configure Environment
 
 ```bash
-# Navigate to client directory
 cd client
+```
 
-# Install dependencies
+#### Install dependencies
+
+```bash
 npm install
 # or
 yarn install
+```
 
-# Copy environment template and configure
+#### Copy environment template and configure
+
+```bash
 cp .env.example .env
-# Edit .env file and add:
+```
+
+#### Edit .env file and add:
+
+```bash
 # VITE_VIDEOSDK_TOKEN="your-videosdk-token-from-app.videosdk.live"
 # VITE_API_URL="http://localhost:8000"  # or your server URL
+```
 
-# If testing with local server, use ngrok:
-# ngrok http 8000
-# Then use the ngrok URL in VITE_API_URL
+#### If testing with local server, use ngrok:
 
-# Start the client
+```bash
+ngrok http 8000
+```
+
+- Then use the ngrok URL in `VITE_API_URL`
+
+#### Start the client
+
+```bash
 npm run dev
 # or
 yarn dev
