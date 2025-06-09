@@ -31,21 +31,21 @@ active_sessions: Dict[str, AgentSession] = {}
 
 class MyVoiceAgent(Agent):
     def __init__(self, system_prompt: str, personality: str):
-        # mcp_script = Path(__file__).parent / "mcp_studio.py"
-        mcp_script_weather = Path(__file__).parent / "mcp_weather.py"
-        # mcp_servers = [
+        mcp_script = Path(__file__).parent / "mcp_server.py"
+        mcp_servers = [
         #     MCPServerStdio(
         #     command=sys.executable,
-        #     args=[str(mcp_script_weather)],
+        #     args=[str(mcp_script)],
         #     client_session_timeout_seconds=30
         # ),
-        #     MCPServerHTTP(
-        #         url=os.getenv("ZAPIER_WEBHOOK_URL")
-        #     )
-        # ]
+            # MCPServerHTTP(
+            #     url=os.getenv("ZAPIER_WEBHOOK_URL"),
+            #     client_session_timeout_seconds=30
+            # )
+        ]
         super().__init__(
             instructions=system_prompt,
-            # mcp_servers=mcp_servers
+            mcp_servers=mcp_servers
         )
         self.personality = personality
 
