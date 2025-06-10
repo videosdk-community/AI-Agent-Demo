@@ -238,7 +238,7 @@ export const MeetingInterface: React.FC<MeetingInterfaceProps> = ({
           system_prompt: systemPrompt, // Use the determined prompt
           temperature: agentSettings.temperature,
           topP: agentSettings.topP,
-          topK: agentSettings.topK,
+          topK: Math.round(agentSettings.topK),
         }),
       });
 
