@@ -15,7 +15,7 @@ A powerful <b>AI Agent Demo</b> playground that combines the intelligence of <b>
 <a href="https://discord.gg/f2WsNDN9S5" target="_blank"><img src="https://img.shields.io/badge/_Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord Community"></a>
 <a href="https://pypi.org/project/videosdk-agents/" target="_blank"><img src="https://img.shields.io/badge/_pip_install-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="PyPI Package"></a>
 
-![AI Voice Agent Interface](https://strapi.videosdk.live/uploads/ai_agent_demo_86ae1b7d09.png)
+![AI Agent Interface](https://strapi.videosdk.live/uploads/ai_agent_demo_86ae1b7d09.png)
 
 </div>
 
@@ -28,6 +28,8 @@ A powerful <b>AI Agent Demo</b> playground that combines the intelligence of <b>
 - **AI Engine**: Google Gemini Live
 - **Real-Time Communication**: VideoSDK
 - **Voice Processing**: Gemini Realtime API
+- **Document Processing**: LangChain + Pinecone
+- **PDF Handling**: PyPDF2
 
 ## Prerequisites
 
@@ -245,6 +247,8 @@ Content-Type: application/json
 - **AgentSession**: Manages agent lifecycle and state
 - **RealTimePipeline**: Processes real-time audio streams
 - **GeminiRealtime**: Integration with Google's Gemini Live model
+- **DocRAGHandler**: Manages document processing and question answering
+- **PineconeStore**: Handles vector storage and retrieval
 
 ### Frontend Components
 
@@ -312,3 +316,45 @@ For support and questions:
 - Enhanced AI personality customization
 
 **Ready to revolutionize your communication with AI voice agents?** Get started now and build the future of intelligent voice interactions!
+
+## Pinecone Setup
+
+### 1. Create Pinecone Account
+
+- Sign up at [Pinecone.io](https://www.pinecone.io)
+- Create a new project
+- Get your API key and environment
+
+### 2. Create Index
+
+```python
+import pinecone
+
+# Initialize Pinecone
+pinecone.init(api_key="your-api-key", environment="your-environment")
+
+# Create index
+pinecone.create_index(
+    name="document-store",
+    dimension=1536,  # Dimension for text-embedding-ada-002
+    metric="cosine"
+)
+```
+
+### 3. Store API Key
+
+Add to your `.env` file:
+
+```bash
+PINECONE_API_KEY="your-api-key"
+PINECONE_ENVIRONMENT="your-environment"
+PINECONE_INDEX_NAME="document-store"
+```
+
+### 4. Build Vector Store
+
+Run the vector store builder:
+
+```bash
+python build_pinecone_store.py
+```
