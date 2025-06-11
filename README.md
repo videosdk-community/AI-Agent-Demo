@@ -312,3 +312,104 @@ For support and questions:
 - Enhanced AI personality customization
 
 **Ready to revolutionize your communication with AI voice agents?** Get started now and build the future of intelligent voice interactions!
+
+# Modularized Travel A2A Server
+
+This is a modularized version of the Travel A2A Server with Email Integration, organized into clean, maintainable packages.
+
+## Project Structure
+
+```
+├── main.py                    # Main FastAPI application
+├── config/                    # Configuration management
+│   ├── __init__.py
+│   └── settings.py           # Environment variables and settings
+├── models/                    # Pydantic models
+│   ├── __init__.py
+│   └── requests.py           # API request models
+├── agents/                    # Agent implementations
+│   ├── __init__.py
+│   ├── travel_agent.py       # Main travel coordinator agent
+│   ├── flight_agent.py       # Flight booking specialist
+│   ├── hotel_agent.py        # Hotel booking specialist
+│   └── email_agent.py        # Email automation specialist
+├── utils/                     # Utility functions
+│   ├── __init__.py
+│   ├── pipeline.py           # Pipeline creation utilities
+│   └── session.py            # Session management utilities
+└── a2a_server.py             # Original monolithic file (for reference)
+```
+
+## Key Benefits of Modularization
+
+1. **Separation of Concerns**: Each module has a single responsibility
+2. **Maintainability**: Easier to modify and extend individual components
+3. **Testability**: Each module can be tested independently
+4. **Reusability**: Components can be reused across different projects
+5. **Scalability**: Easy to add new agents or modify existing ones
+
+## Components Overview
+
+### `config/`
+
+- Centralized configuration management
+- Environment variable handling
+- Default settings
+
+### `models/`
+
+- Pydantic models for API requests and responses
+- Data validation and serialization
+
+### `agents/`
+
+- Individual agent classes with specific responsibilities
+- Clean separation between travel coordinator and specialists
+- Easy to add new agent types
+
+### `utils/`
+
+- Shared utility functions
+- Pipeline creation and management
+- Session handling
+
+### `main.py`
+
+- FastAPI application setup
+- Endpoint definitions
+- Agent orchestration logic
+
+## Running the Application
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Set environment variables
+export GOOGLE_API_KEY="your_api_key"
+export ZAPIER_EMAIL_WEBHOOK_URL="your_webhook_url"  # Optional
+
+# Run the server
+python main.py
+```
+
+## Adding New Agents
+
+To add a new agent:
+
+1. Create a new file in `agents/` (e.g., `car_rental_agent.py`)
+2. Implement the agent class following the existing patterns
+3. Add the import to `agents/__init__.py`
+4. Update the orchestration logic in `main.py`
+
+## API Endpoints
+
+- `POST /join-agent` - Start travel agents for a meeting
+- `POST /leave-agent` - Remove travel agents from a meeting
+- `GET /test` - Health check endpoint
+
+## Environment Variables
+
+- `GOOGLE_API_KEY` - Required for Gemini integration
+- `ZAPIER_EMAIL_WEBHOOK_URL` - Optional for email integration
+- `PORT` - Server port (default: 8002)
