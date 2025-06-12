@@ -4,8 +4,6 @@
 
 <div align="left">
 
-![AI Agent Interface](https://strapi.videosdk.live/uploads/ai_agent_demo_86ae1b7d09.png)
-
 A powerful <b>AI Agent Demo</b> playground that combines the intelligence of <b>AI agents LLM</b> with real-time <b>speech-to-speech</b> models integration. Build sophisticated voice-enabled applications for customer service, sales automation, and interactive assistants.
 
 </div>
