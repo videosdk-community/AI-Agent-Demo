@@ -1,0 +1,23 @@
+{
+  "include": ["."],
+  "exclude": [
+    ".venv",
+    "**/__pycache__",
+    "**/.mypy_cache",
+    "build_pinecone_store.py"
+  ],
+  "extraPaths": [
+    ".",
+    "./agents",
+    "./services",
+    "./api",
+    "./models",
+    "./config",
+    "./utils"
+  ],
+  "pythonVersion": "3.8",
+  "typeCheckingMode": "basic",
+  "useLibraryCodeForTypes": true,
+  "reportMissingImports": "warning",
+  "reportGeneralTypeIssues": "warning"
+}

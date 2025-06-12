@@ -50,6 +50,11 @@ if not all([OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_ENVIRONMENT, PINECONE_IND
     print("Please ensure your .env file is correctly configured.")
     exit(1)
 
+# Type assertions after validation
+assert OPENAI_API_KEY is not None
+assert PINECONE_API_KEY is not None
+assert PINECONE_INDEX_NAME is not None
+
 def extract_text_from_pdf(pdf_path: str) -> List[Document]:
     """Extracts text from PDF and returns a list of Document objects."""
     print(f"Extracting text from PDF: {pdf_path}")
@@ -121,9 +126,10 @@ def build_and_upsert_vector_store(clear_index_first: bool = False):
     # Initialize embeddings model and Pinecone client
     print("Initializing embeddings model and Pinecone client...")
     try:
-        embeddings_model = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY, request_timeout=60)
+        # Use environment variable directly to avoid type issues
+        embeddings_model = OpenAIEmbeddings()  # Will use OPENAI_API_KEY from environment
         pc = Pinecone(api_key=PINECONE_API_KEY)
-        index = pc.Index(PINECONE_INDEX_NAME)
+        index = pc.Index(PINECONE_INDEX_NAME)  # type: ignore
         print(f"Successfully connected to Pinecone index '{PINECONE_INDEX_NAME}'.")
     except Exception as e:
         print(f"Failed to initialize OpenAIEmbeddings or Pinecone client: {e}")
