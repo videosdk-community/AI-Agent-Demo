@@ -1,32 +1,17 @@
-# server.py
-'''
-You are an HR Policy Assistant, a helpful AI agent specialized in providing information about company HR policies and procedures. Your role is to:
-
-1. Help employees understand HR policies, procedures, and guidelines
-2. Provide accurate information from the HR Policy Manual
-3. Answer questions about benefits, leave policies, conduct guidelines, and workplace procedures
-4. Direct users to appropriate HR contacts when needed
-
-Guidelines:
-- Always search the HR Policy Manual first when asked about any HR-related topic
-- Provide clear, accurate, and helpful responses based on official policy information
-- If policy information is unclear or incomplete, advise the user to contact HR directly
-- Be professional, empathetic, and supportive in your responses
-- Respect confidentiality and direct sensitive matters to HR personnel
-
-Use the search_hr_policy function tool to find relevant policy information for user questions.'''
-
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
-from videosdk.agents import Agent, AgentSession, RealTimePipeline, function_tool, MCPServerStdio, MCPServerHTTP
+from videosdk.agents import Agent, AgentSession, CascadingPipeline, function_tool, WorkerJob, MCPServerStdio, MCPServerHTTP, ConversationFlow, ChatRole
 from videosdk.plugins.google import GeminiRealtime, GeminiLiveConfig
+from videosdk.plugins.openai import OpenAILLM, OpenAITTS, OpenAISTT
+# from videosdk.plugins.silero import SileroVAD
+# from videosdk.plugins.turn_detector import TurnDetector
 import os
 import sys
 import uvicorn
 from dotenv import load_dotenv
 import asyncio
-from typing import Dict
+from typing import Dict, AsyncIterator
 import traceback
 from pathlib import Path
 from doc_rag_handler import search_hr_policy_knowledge
@@ -51,7 +36,7 @@ active_sessions: Dict[str, AgentSession] = {}
 class MyVoiceAgent(Agent):
     def __init__(self, system_prompt: str, personality: str):
         # mcp_script = Path(__file__).parent / "mcp_studio.py"
-        # mcp_script_weather = Path(__file__).parent / "mcp_weather.py"
+        mcp_script_weather = Path(__file__).parent / "mcp_weather.py"
         # mcp_servers = [
         #     MCPServerStdio(
         #     command=sys.executable,
@@ -69,7 +54,7 @@ class MyVoiceAgent(Agent):
         self.personality = personality
 
     async def on_enter(self) -> None:
-        await self.session.say(f"Hey, How can I help you with HR policies today?")
+        await self.session.say(f"Hey, How can I help you today?")
     
     async def on_exit(self) -> None:
         await self.session.say("Goodbye!")
@@ -81,26 +66,46 @@ class MyVoiceAgent(Agent):
         await self.session.say("Goodbye!")
         await asyncio.sleep(1)
         await self.session.leave()
-
-    @function_tool
-    async def search_hr_policy(self, query: str) -> Dict:
-        """
-        Search the HR Policy Manual for information related to the user's question.
-        Use this tool whenever the user asks about HR policies, procedures, benefits, 
-        leave policies, conduct guidelines, or any workplace-related questions.
-        
-        Args:
-            query: The HR policy question or topic to search for
-            
-        Returns:
-            Dictionary containing relevant HR policy information
-        """
-        try:
-            result = await search_hr_policy_knowledge(query, max_results=3)
-            return {"response": result}
-        except Exception as e:
-            return {"response": f"I'm sorry, I encountered an error while searching the HR policy database: {str(e)}. Please try rephrasing your question or contact HR directly."}
   
+
+class MyConversationFlow(ConversationFlow):
+    def __init__(self, agent, stt=None, llm=None, tts=None):
+        super().__init__(agent, stt, llm, tts)
+
+    async def run(self, transcript: str) -> AsyncIterator[str]:
+        """Main conversation loop: handle a user turn."""
+        await self.on_turn_start(transcript)
+        
+        
+        processed_transcript = transcript.lower().strip()
+
+        retrieved_context = None  # Initialize to None
+        try:
+            # Perform RAG retrieval
+            retrieved_context = await search_hr_policy_knowledge(processed_transcript)
+        except Exception as e:
+            print(f"[{self.agent.session.context.get('meetingId', 'UnknownMeeting')}] Error during RAG retrieval: {e}")
+            # Optionally, you could inform the user or LLM that context retrieval failed
+            # self.agent.chat_context.add_message(role=ChatRole.SYSTEM, content="[System: HR policy context retrieval failed.]")
+
+        # Add retrieved context to chat history if available
+        if retrieved_context:
+            self.agent.chat_context.add_message(role=ChatRole.SYSTEM, content=f"Context from HR Policy Manual: {retrieved_context}")
+
+        self.agent.chat_context.add_message(role=ChatRole.USER, content=processed_transcript)
+        
+        async for response_chunk in self.process_with_llm():
+            yield response_chunk
+
+        await self.on_turn_end()
+
+    async def on_turn_start(self, transcript: str) -> None:
+        """Called at the start of a user turn."""
+        self.is_turn_active = True
+
+    async def on_turn_end(self) -> None:
+        """Called at the end of a user turn."""
+        self.is_turn_active = False
 
 class MeetingReqConfig(BaseModel):
     meeting_id: str
@@ -124,27 +129,40 @@ async def server_operations(req: MeetingReqConfig):
     
 
     # Use all values from the request
-    model = GeminiRealtime(
-        model=req.model,
-        api_key=os.getenv("GOOGLE_API_KEY"),
-        config=GeminiLiveConfig(
-            voice=req.voice,
-            response_modalities=["AUDIO"],
-            temperature=req.temperature,
-            top_p=req.topP,
-            top_k=int(req.topK),
-        )
-    )
+    # model = GeminiRealtime(
+    #     model=req.model,
+    #     api_key=os.getenv("GOOGLE_API_KEY"),
+    #     config=GeminiLiveConfig(
+    #         voice=req.voice,
+    #         response_modalities=["AUDIO"],
+    #         temperature=req.temperature,
+    #         top_p=req.topP,
+    #         top_k=int(req.topK),
+    #     )
+    # )
 
-    pipeline = RealTimePipeline(model=model)
+    # pipeline = RealTimePipeline(model=model)
+    agent = MyVoiceAgent(
+        system_prompt=req.system_prompt, # Pass system_prompt from req
+        personality=req.personality    # Pass personality from req
+    )
+    conversation_flow = MyConversationFlow(agent)
+    pipeline = CascadingPipeline(
+        stt= OpenAISTT(api_key=os.getenv("OPENAI_API_KEY")),
+        llm=OpenAILLM(api_key=os.getenv("OPENAI_API_KEY")),
+        tts=OpenAITTS(api_key=os.getenv("OPENAI_API_KEY")),
+        # vad=SileroVAD(),
+        # turn_detector=TurnDetector(threshold=0.8)
+    )
 
     # Pass system_prompt and personality in the context if your agent uses them
     session = AgentSession(
         agent=MyVoiceAgent(req.system_prompt, req.personality),
         pipeline=pipeline,
+        conversation_flow=conversation_flow,
         context={
             "meetingId": meeting_id,
-            "name": "Gemini Agent",
+            "name": "My Agent",
             "videosdk_auth": req.token,
         }
     )
@@ -209,14 +227,9 @@ async def leave_agent(req: LeaveAgentReqConfig):
 @app.get("/test")
 async def test():
     return {"message": "Server is running!"}
-# --- END NEW/MODIFIED ENDPOINT ---
 
 
 if __name__ == "__main__":
     # The uvicorn.run in the original question was "main:app" and port 8001
     # Assuming the file is named main.py
     uvicorn.run("main:app", host="127.0.0.1", port=port, reload=True) # Added reload=True for dev
-
-
-
-

@@ -45,10 +45,8 @@ mdurl==0.1.2
 msgpack==1.1.0
 multidict==6.4.4
 numba==0.61.2
-numpy==2.2.6
 openai==1.85.0
 openapi-pydantic==0.5.1
-packaging==25.0
 pillow==10.4.0
 platformdirs==4.3.8
 pooch==1.8.2
@@ -90,7 +88,7 @@ typing-inspection==0.4.1
 urllib3==2.4.0
 uvicorn==0.34.3
 videosdk==0.1.0
-videosdk-agents==0.0.10
+videosdk-agents==0.0.11
 videosdk-plugins-google==0.0.5
 videosdk-plugins-openai==0.0.7
 vsaiortc==0.0.8
