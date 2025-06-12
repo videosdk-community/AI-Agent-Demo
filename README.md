@@ -130,15 +130,15 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-# Edit .env file and add your credentials:
+ - Edit .env file and add your credentials:
 
-# GOOGLE_API_KEY="your-google-api-key-here"
+```bash
 
-# PORT="8000"
-
-# PINECONE_API_KEY="your-pinecone-api-key"
-
-# PINECONE_ENVIRONMENT="your-pinecone-environment"
+GOOGLE_API_KEY="your-google-api-key-here"
+PORT="8000"
+PINECONE_API_KEY="your-pinecone-api-key"
+PINECONE_ENVIRONMENT="your-pinecone-environment"
+```
 
 #### Edit .env file and add your credentials:
 
